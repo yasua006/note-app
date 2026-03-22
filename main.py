@@ -37,9 +37,9 @@ def add_note():
     title: str | None = request.form.get("title")
     description: str | None = request.form.get("description")
     
-    log_file = open("log.txt", "a+")
-    log_file.seek(0)
-    log_file.write("\n–––––––––––––––––––––––––––––––––––\n\n")
+    # log_file = open("log.txt", "a+")
+    # log_file.seek(0)
+    # log_file.write("\n–––––––––––––––––––––––––––––––––––\n\n")
     # log_file.write(f"tittel og beskrivelse: {title, description}\n")
 
     response = handle_empty_note(title=title, description=description)
@@ -59,25 +59,24 @@ def add_note():
     # log_file.write(f"notat `dict`: {json.dumps(note)}\n")
 
     try:
-        with open("notes.json", "a+") as notes_json:
-            notes_json.seek(0)
-
-            log_file.write("før json load (add)\n")
-            log_file.write(f"Stream posisjon før readlines: {str(notes_json.tell())}\n")
-            notes: str = notes_json.read()
+        with open("notes.json", "r+") as notes_json:
+            # log_file.write("før json load (add)\n")
+            # log_file.write(f"Stream posisjon før readlines: {str(notes_json.tell())}\n")
+            notes = json.load(notes_json)
             
-            if not notes:
-                log_file.write("notater - tom\n")
+            # if not notes:
+                # log_file.write("notater - tom\n")
 
-            log_file.write(f"notater før ny notat: {notes or "null"}\n")
-            notes += (json.dumps(note))
-            log_file.write(f"notater etter ny notat: {notes or "null"}\n")
+            # log_file.write(f"notater før ny notat: {notes or "null"}\n")
+            notes.update(note)
+            # log_file.write(f"notater etter ny notat: {notes or "null"}\n")
 
-            log_file.write(f"Stream posisjon etter readlines: {str(notes_json.tell())}")
+            # log_file.write(f"Stream posisjon etter readlines: {str(notes_json.tell())}")
 
             # * Etter siste logg
-            log_file.close()
+            # log_file.close()
 
+            notes_json.seek(0)
             json.dump(notes, notes_json, indent=4, separators=(",", ":"))
     except FileNotFoundError as fnfe:
         app.logger.error("`notes.json` doesn't exist!", fnfe)
