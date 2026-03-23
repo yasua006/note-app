@@ -9,7 +9,6 @@
         <link
             rel="stylesheet"
             href="/static/css/style.css" />
-        <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     </head>
 
     <body>
@@ -21,7 +20,7 @@
             <section aria-labelledby="notes-heading">
                 <h2 id="notes-heading">Notes</h2>
 
-                <ol v-for="note in notes" :note="note">
+                <ol>
                     <li>{{ note }}</li>
                 </ol>
             </section>

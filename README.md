@@ -3,15 +3,12 @@
 
 ## Løsning Beskrivelse
 - Template bruk ble [sane vanilla css](https://github.com/Placewith5s/sane-vanilla-css). Mindre repetisjon blir bedre
-- Jeg valgte JSON for data lagring for lettere begynnelse av prosjektet. Det er veldig sannsynlig at jeg bytter til databaser, på grunn av lettere "scale"
+- Jeg valgte JSON for data lagring, lettere begynnelse av prosjektet. Jeg har bytt til databaser og mariadb var valget - det er 100% open-source
 - Flask debugging var ikke vennlig nok, derfor valgte jeg å logge viktig meldinger i en `log.txt` fil for forbedret debugging
-- Jeg får bruke `requirements.txt` for både en stabil kjøring av appen og lettere installasjon av pip packages.
-- For front-end, valgte jeg å bruke rammeverket vuejs via CDN. Front-end blir bedre med reactivity. CDN for å ikke trenge installasjon av vuejs.
+- Jeg får bruke `requirements.txt` for både en stabil kjøring av appen og lettere installasjon av pip packages
 
 
 ## Kjøring Requirements
-- Ny `notes.json` fil - trenges for notater lagring
-
 ### Få med Python virtuell environment (`.venv`)
 Vi lager og bruker Python virtuell environment for å unngå konflikter med globale pip packages.
 
@@ -54,7 +51,7 @@ For å lage en ny virtuell environment:
 python -m venv .venv
 ```
 
-Utforsk for aktivering av Python `.venv`.
+Utforsk for aktivering av Python `.venv` på Linux.
 
 ### Få med requirements
 - For MacOS
@@ -62,7 +59,7 @@ Utforsk for aktivering av Python `.venv`.
 pip3 freeze > requirements.txt
 ```
 
-- For Windows
+- For Windows og andre
 ```sh
 pip freeze > requirements.txt
 ```
@@ -76,7 +73,15 @@ Hvis nodejs er ikke installert, gå til: [nodejs installering side](https://node
 
 
 ## Kjøring av prosjektet
-Klienten starter med serveren. For å kjøre serveren:
+Vi trenger å installere og starte en lokal mariadb server for å kunne kjøre appen. Det er hva prosjektet bruker for data.
+
+**For MacOS:** `brew install mariadb mariadb-connector-c`
+> [!IMPORTANT]
+> maridb-connector-c også
+
+**For Windows:** følg denne guiden: [how to install configure mariadb on windows](https://www.geeksforgeeks.org/mariadb/how-to-install-configure-mariadb-on-windows/)
+
+Start den lokale serveren:
 ```sh
 uvicorn main:asgi_app
 ```
