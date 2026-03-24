@@ -59,12 +59,12 @@ Utforsk for aktivering av Python `.venv` på Linux.
 ### Få med requirements
 - For MacOS
 ```sh
-pip3 freeze > requirements.txt
+pip3 install -r requirements.txt
 ```
 
 - For Windows og andre
 ```sh
-pip freeze > requirements.txt
+pip install -r requirements.txt
 ```
 
 ### Få med `node_modules` (trenges ikke akkurat nå)
