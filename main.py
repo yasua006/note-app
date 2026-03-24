@@ -3,8 +3,7 @@ import mariadb
 from modules.config import db_name, db_config
 
 from asgiref.wsgi import WsgiToAsgi
-# from flask import Flask, render_template, request, jsonify
-from flask import Flask, render_template, jsonify
+from flask import Flask, render_template, request, jsonify
 
 app: Flask = Flask(__name__)
 
@@ -24,14 +23,15 @@ def create_notes(cursor) -> None:
     """)
     app.logger.info("Executed creation of Notes")
 
-# def insert_note(cursor, title: str, description: str) -> None:
-#     app.logger.info("Inserting rows...")
+def insert_note(cursor, title: str, description: str):
+    app.logger.info("Inserting rows...")
 
-#     insert_query = "INSERT INTO Notes (title, description) VALUES (?, ?)"
+    insert_query = "INSERT INTO Notes (title, description) VALUES (?, ?)"
 
-#     # parametized (?) - no SQL injection attack
-#     cursor.execute(insert_query, (title, description))
-#     app.logger.info(f"Row count inserted: {cursor.rowcount}")
+    # parametized (?) - no SQL injection attack
+    cursor.execute(insert_query, (title, description))
+    app.logger.info(f"Row count inserted: {cursor.rowcount}")
+    return cursor.lastrowid
 
 def get_notes(cursor):
     select_query = "SELECT * FROM Notes"
@@ -97,60 +97,37 @@ def handle_empty_note(title: str | None, description: str | None):
 
 @app.route("/add", methods=["POST"])
 def add_note():
-    return jsonify("/add is down. Coming back soon..."), 503
+    cursor = None
+    conn = None
 
-    # title: str | None = request.form.get("title")
-    # description: str | None = request.form.get("description")
-    
-    # # log_file.write(f"tittel og beskrivelse: {title, description}\n")
+    title: str | None = request.form.get("title")
+    description: str | None = request.form.get("description")
 
-    # response = handle_empty_note(title=title, description=description)
-    # if response: return response
+    # log_file.write(f"tittel og beskrivelse: {title, description}\n")
 
-    # # log_file.write("før notat dict\n")
+    response = handle_empty_note(title=title, description=description)
+    if response: return response
 
-    # index: str = hashlib.sha512().hexdigest()
+    try:
+        conn = mariadb.connect(**db_config)
+        cursor = conn.cursor(dictionary=True)
 
-    # note: dict[str, dict[str, str | None]] = {
-    #     f"note_{index}": {
-    #         "title": title,
-    #         "description": description
-    #     }
-    # }
+        note_id = insert_note(cursor=cursor, title=title, description=description)
+        
+        # if not note:
+            # log_file.write("notater - tom\n")
 
-    # # log_file.write(f"notat `dict`: {json.dumps(note)}\n")
-
-    # try:
-    #     with open("notes.json", "r+") as notes_json:
-    #         # log_file.write("før json load (add)\n")
-    #         # log_file.write(f"Stream posisjon før readlines: {str(notes_json.tell())}\n")
-    #         notes = json.load(notes_json)
-            
-    #         # if not notes:
-    #             # log_file.write("notater - tom\n")
-
-    #         # log_file.write(f"notater før ny notat: {notes or "null"}\n")
-    #         notes.update(note)
-    #         # log_file.write(f"notater etter ny notat: {notes or "null"}\n")
-
-    #         # log_file.write(f"Stream posisjon etter readlines: {str(notes_json.tell())}")
-
-    #         # * Etter siste logg
-    #         # log_file.close()
-
-    #         notes_json.seek(0)
-    #         json.dump(notes, notes_json, indent=4, separators=(",", ":"))
-    # except FileNotFoundError as fnfe:
-    #     app.logger.error("`notes.json` doesn't exist!", fnfe)
-    #     return jsonify({"error": "notes.json doesn't exist!"}), 500
-    # except json.JSONDecodeError as jde:
-    #     app.logger.error("`notes.json` couldn't update!", jde)
-    #     return jsonify({"error": "notes.json couldn't update!"}), 500
-    # except Exception as ex:
-    #     app.logger.error("Cannot add note!", ex)
-    #     return jsonify({"error": "Cannot add note!"}), 500
-
-    # return jsonify(note), 201
+        # log_file.write(f"notater før ny notat: {notes or "null"}\n")
+        # log_file.write(f"notater etter ny notat: {notes or "null"}\n")
+        return jsonify(f"Note with id {note_id} successfully created"), 201
+    except mariadb.Error as err:
+        app.logger.info("Data insert failed!", err)
+        conn.rollback()
+    except Exception as ex:
+        app.logger.error("Cannot add note!", ex)
+        return jsonify({"error": "Cannot add note!"}), 500
+    finally:
+        close_db(cursor=cursor, conn=conn)
 
 asgi_app: WsgiToAsgi = WsgiToAsgi(app)
 
