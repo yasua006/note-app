@@ -94,8 +94,17 @@ uvicorn main:asgi_app
 ### GET /notes
 Vis alle notater fant i databasen din.
 
-### POST /add
-Opprett en ny notat med tittel og beskrivelse.
+### GET /todos
+Vis alle TODOs fant i databasen din.
+
+### POST /add-note
+Opprett en ny notat i databasen din som inneholder en tittel og en beskrivelse.
 
 - Tittelen og beskrivelsen - ikke tom
 - Tittelen og beskrivelsen - maks. 255 karakterer
+
+### POST /add-todo
+Opprett en ny todo i databasen din som inneholder en tittel, en beskrivelse, og om oppgaven er ferdig.
+
+- Tittelen og beskrivelsen - det samme som [/add-note seksjon](#post-add-note)
+- Oppgave boolean - ikke tom

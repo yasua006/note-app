@@ -18,4 +18,4 @@ def insert_note(cursor, title: str, description: str):
     return cursor.lastrowid
 
 def get_notes(cursor):
-    return select_all_db(cursor)
+    return select_all_db(cursor, "Notes")

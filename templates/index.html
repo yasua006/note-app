@@ -28,7 +28,7 @@
                 {%endfor%}
             </section>
 
-            <form action="/add" method="post">
+            <form action="/add-note" method="post">
                 <p>Add numbered notes.</p>
 
                 <label for="title">Title:</label>
@@ -51,10 +51,65 @@
 
                 <button type="submit">Add note</button>
             </form>
+
+            <section aria-labelledby="todos-heading">
+                <h2 id="todos-heading">TODOs</h2>
+
+                <ol>
+                    {%for todo in todos%}
+                    <li><h3>{{ todo["title"] }}</h3></li>
+                    <li>{{ todo["description"] }}</li>
+                    <li>
+                        <input
+                        type="checkbox"
+                        value="{{ todo["task_done"] }}" />
+                    </li>
+                </ol>
+                {%endfor%}
+            </section>
+
+            <form action="/add-todo" method="post">
+                <p>Add TODOs.</p>
+
+                <label for="title">Title:</label>
+                <input
+                    id="title"
+                    name="title"
+                    type="text"
+                    placeholder="Title..."
+                    autocapitalize="on"
+                    required />
+                <label for="description"
+                    >Description:</label
+                >
+                <input
+                    id="description"
+                    name="description"
+                    type="text"
+                    placeholder="Description..."
+                    required />
+                <label for="task-done">Task done?</label>
+                <input
+                    id="task-done"
+                    name="task-done"
+                    type="checkbox" />
+
+                <button type="submit">Add TODO</button>
+            </form>
         </main>
 
         <!-- <script
             type="module"
             src="/static/js/script.js"></script> -->
+        <script defer>
+            "use strict";
+            const task_done = document.body
+            .querySelector("#app")
+            .querySelector("#task-done");
+
+            task_done.addEventListener("input", () => {
+                console.log(task_done.value);
+            });
+        </script>
     </body>
 </html>

@@ -47,7 +47,7 @@ def main() -> None:
         # insert_notes(cursor)
         select_notes(cursor)
     except mariadb.IntegrityError as ierr:
-        print("Duplicate, not UNIQUE, or NULL row detected while inserting!", ierr)
+        print("NULL value detected while inserting?", ierr)
         conn.rollback()
     except mariadb.Error as err:
         print("Database test failed!", err)
