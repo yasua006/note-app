@@ -1,6 +1,8 @@
 import mariadb
 
-from modules.config import db_name, db_config
+from modules.config import db_config
+from modules.notes_db import *
+from modules.close_db import close_db
 
 from asgiref.wsgi import WsgiToAsgi
 from flask import Flask, render_template, request, jsonify
@@ -11,41 +13,6 @@ log_file = open("log.txt", "a+")
 log_file.seek(0)
 log_file.write("\n–––––––––––––––––––––––––––––––––––\n\n")
 
-
-def create_notes(cursor) -> None:
-    log_file.write(f"Connected to database {db_name}\n")
-
-    cursor.execute("""
-        CREATE TABLE IF NOT EXISTS Notes(
-            id INT AUTO_INCREMENT PRIMARY KEY,
-            title VARCHAR(255) NOT NULL,
-            description VARCHAR(255) NOT NULL
-        )
-    """)
-    log_file.write("Executed creation of Notes\n")
-
-def insert_note(cursor, title: str, description: str):
-    log_file.write("Inserting row...\n")
-
-    insert_query = "INSERT INTO Notes (title, description) VALUES (?, ?)"
-
-    # parametized (?) - no SQL injection attack
-    cursor.execute(insert_query, (title, description))
-    log_file.write(f"Row count inserted: {cursor.rowcount}\n")
-    return cursor.lastrowid
-
-def get_notes(cursor):
-    select_query = "SELECT * FROM Notes"
-    cursor.execute(select_query)
-    return cursor.fetchall()
-
-def close_db(cursor, conn) -> None:
-    if cursor:
-        cursor.close()
-        log_file.write("Closed cursor\n")
-    if conn:
-        conn.close()
-        log_file.write("Closed connection\n")
 
 @app.route("/")
 def home() -> str | None:
