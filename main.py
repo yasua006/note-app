@@ -9,10 +9,11 @@ app: Flask = Flask(__name__)
 
 log_file = open("log.txt", "a+")
 log_file.seek(0)
+log_file.write("\n–––––––––––––––––––––––––––––––––––\n\n")
 
 
 def create_notes(cursor) -> None:
-    app.logger.info(f"Connected to database {db_name}")
+    log_file.write(f"Connected to database {db_name}\n")
 
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS Notes(
@@ -21,16 +22,16 @@ def create_notes(cursor) -> None:
             description VARCHAR(255) NOT NULL
         )
     """)
-    app.logger.info("Executed creation of Notes")
+    log_file.write("Executed creation of Notes\n")
 
 def insert_note(cursor, title: str, description: str):
-    app.logger.info("Inserting rows...")
+    log_file.write("Inserting row...\n")
 
     insert_query = "INSERT INTO Notes (title, description) VALUES (?, ?)"
 
     # parametized (?) - no SQL injection attack
     cursor.execute(insert_query, (title, description))
-    app.logger.info(f"Row count inserted: {cursor.rowcount}")
+    log_file.write(f"Row count inserted: {cursor.rowcount}\n")
     return cursor.lastrowid
 
 def get_notes(cursor):
@@ -41,10 +42,10 @@ def get_notes(cursor):
 def close_db(cursor, conn) -> None:
     if cursor:
         cursor.close()
-        app.logger.info("Closed cursor")
+        log_file.write("Closed cursor\n")
     if conn:
         conn.close()
-        app.logger.info("Closed connection")
+        log_file.write("Closed connection\n")
 
 @app.route("/")
 def home() -> str | None:
@@ -58,9 +59,14 @@ def home() -> str | None:
         create_notes(cursor)
         notes = get_notes(cursor)
 
+        # for item in notes:
+            # log_file.write(f"Notat values vist: {item.values()}\n")
+            # log_file.write(f"Notat tittel vist: {item["title"]}\n")
+            # log_file.write(f"Notat beskrivelse vist: {item["description"]}\n")
+
         return render_template("index.html", notes=notes)
     except mariadb.Error as err:
-        app.logger.info("Data handling failed!", err)
+        log_file.write(f"Data handling failed! {err}\n")
         conn.rollback()
     finally:
         close_db(cursor=cursor, conn=conn)
@@ -75,14 +81,14 @@ def show_all_notes():
         conn = mariadb.connect(**db_config)
         cursor = conn.cursor(dictionary=True)
 
-        log_file.write("\n–––––––––––––––––––––––––––––––––––\n\n")
         log_file.write("Før select query - alle notes\n")
         notes = get_notes(cursor)
-        log_file.write(f"Notater: {notes}")
+
+        log_file.write(f"Notater: {notes}\n")
 
         return jsonify(notes), 200
     except mariadb.Error as err:
-        app.logger.info("Data handling failed!", err)
+        log_file.write(f"Data handling failed! {err}\n")
         conn.rollback()
     finally:
         close_db(cursor=cursor, conn=conn)
@@ -103,7 +109,7 @@ def add_note():
     title: str | None = request.form.get("title")
     description: str | None = request.form.get("description")
 
-    # log_file.write(f"tittel og beskrivelse: {title, description}\n")
+    log_file.write(f"tittel og beskrivelse: {title, description}\n")
 
     response = handle_empty_note(title=title, description=description)
     if response: return response
@@ -113,15 +119,10 @@ def add_note():
         cursor = conn.cursor(dictionary=True)
 
         note_id = insert_note(cursor=cursor, title=title, description=description)
-        
-        # if not note:
-            # log_file.write("notater - tom\n")
 
-        # log_file.write(f"notater før ny notat: {notes or "null"}\n")
-        # log_file.write(f"notater etter ny notat: {notes or "null"}\n")
         return jsonify(f"Note with id {note_id} successfully created"), 201
     except mariadb.Error as err:
-        app.logger.info("Data insert failed!", err)
+        log_file.write(f"Data insert failed! {err}")
         conn.rollback()
     except Exception as ex:
         app.logger.error("Cannot add note!", ex)

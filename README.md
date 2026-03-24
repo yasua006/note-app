@@ -9,6 +9,8 @@
 
 
 ## Kjøring Requirements (For Oppdateringer av Koden)
+- Ny log.txt for å unngå `log_file` relatert feil meldinger
+
 ### Få med Python virtuell environment (`.venv`)
 Vi lager og bruker Python virtuell environment for å unngå konflikter med globale pip packages.
 
@@ -86,3 +88,14 @@ Start den lokale serveren:
 ```sh
 uvicorn main:asgi_app
 ```
+
+
+## API bruk
+### GET /notes
+Vis alle notater fant i databasen din.
+
+### POST /add
+Opprett en ny notat med tittel og beskrivelse.
+
+- Tittelen og beskrivelsen - ikke tom
+- Tittelen og beskrivelsen - maks. 255 karakterer
