@@ -1,4 +1,4 @@
-import { main_elem } from "./modules/main_elem_var";
+import { main_elem } from "./modules/main_elem_var.js";
 const target_checkboxes = main_elem.querySelectorAll("input[value='1'][type='checkbox']");
 target_checkboxes.forEach((target_checkbox) => {
     const description_id = target_checkbox.parentElement.id.replaceAll("task-done-", "todo-description-");

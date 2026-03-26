@@ -1,5 +1,5 @@
-import { main_elem } from "./main_elem_var";
-import { get_matching_id } from "./get_matching_id";
+import { main_elem } from "./main_elem_var.js";
+import { get_matching_id } from "./get_matching_id.js";
 export const handle_note_edits = async (edit_note_btn) => {
     const id = edit_note_btn.id.replaceAll("edit-note-btn-", "note-id-");
     const title_id = "[id^='note-title-']";

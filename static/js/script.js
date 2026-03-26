@@ -1,6 +1,6 @@
-import { main_elem } from "./modules/main_elem_var";
-import { handle_note_deletions, handle_todo_deletions } from "./modules/handle_deletions";
-import { handle_note_edits, handle_todo_edits } from "./modules/handle_edits";
+import { main_elem } from "./modules/main_elem_var.js";
+import { handle_note_deletions, handle_todo_deletions } from "./modules/handle_deletions.js";
+import { handle_note_edits, handle_todo_edits } from "./modules/handle_edits.js";
 const edit_requests = async () => {
     const edit_note_buttons = main_elem.querySelectorAll("button[id^='edit-note-btn-']");
     const edit_todo_buttons = main_elem.querySelectorAll("button[id^='edit-todo-btn-']");

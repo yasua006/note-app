@@ -1,4 +1,4 @@
-import { get_matching_id } from "./get_matching_id";
+import { get_matching_id } from "./get_matching_id.js";
 export const handle_note_deletions = async (delete_note_btn) => {
     const id = delete_note_btn.id.replaceAll("delete-note-btn-", "note-id-");
     const matching_note_id = get_matching_id(id);
