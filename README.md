@@ -82,6 +82,34 @@ Vi trenger å installere og starte en lokal mariadb server for å kunne kjøre a
 > [!IMPORTANT]
 > maridb-connector-c også
 
+- Start mariadb på terminalen
+Start mariadb servicen først:
+```sh
+`brew services start mariadb`
+```
+og etter det kjør:
+```sh
+mariadb
+```
+
+- Lag databasen i mariadb
+`CREATE DATABASE dbnavn;`
+
+- Lag brukeren i mariadb
+`CREATE USER 'brukernavn'@'localhost' IDENTIFIED BY 'passord';`
+
+- Gi brukeren tilgang til databasen i mariadb
+`GRANT ALL PRIVILEGES ON dbnavn.* TO 'brukernavn'@'localhost';`
+`FLUSH PRIVILEGES;`
+
+- Start terminalen på nytt og logge deg inn som brukeren på terminalen.
+```sh
+mysql -u brukernavn -p;
+```
+
+> [!NOTE]
+> "brukernavn" er placeholder, bytt den til et bedre navn
+
 **For Windows:** følg denne guiden: [how to install configure mariadb on windows](https://www.geeksforgeeks.org/mariadb/how-to-install-configure-mariadb-on-windows/)
 
 Start den lokale serveren:
@@ -132,7 +160,7 @@ Fjern TODO med tilhørende ID fant i databasen din (query strings).
 
 
 ## Hvordan Starte En Ny App Server
-Vi bruker Render for å hoste vår app server. Det er veldig lett å bruke.
+Vi bruker Render for å hoste vårt app server. Det er lett å bruke.
 
 For å starte en ny server (inkluderer klienten):
 1. Logge deg inn eller registrer deg en ny gratis bruker
@@ -146,4 +174,22 @@ For å starte en ny server (inkluderer klienten):
 - Gå til 'Public Git Repository':
 ![Showing render new web service section](render_new_web_service_section.png)
 
-4. Fylle inn alt du trenger, inkludert for "Environment Variables".
+4. Fylle inn alt du trenger:
+- Language: Python 3
+
+Scroll litt nede for å se "Build Command" og "Start Command". De skal være sånn:
+- Build Command: npm install && pip install -r requirements.txt
+- Start Command: uvicorn main:asgi_app
+
+- Instance Type: husk å velge "Free", fordi valget er "Starter" som default og "Starter" er ikke gratis.
+
+Scroll litt nede for å se "Environment Variables". Her skal du taste inn verdiene som du bruker for databasen:
+host: verdi her
+port: verdi her
+username: verdi her (brukernavn til database brukeren du lagde i stad)
+password: verdi her
+db_name: verdi her (navnet til databasen du lagde i stad)
+
+> [!NOTE]
+> "verdi her" er placeholder, bytt til dine env. variabel verdier
+> host skal ikke være "localhost" i produksjon
