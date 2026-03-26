@@ -129,3 +129,21 @@ Fjern en notat med tilhørende ID fant i databasen din (query strings).
 
 ### DELETE /delete-todo
 Fjern TODO med tilhørende ID fant i databasen din (query strings).
+
+
+## Hvordan Starte En Ny App Server
+Vi bruker Render for å hoste vår app server. Det er veldig lett å bruke.
+
+For å starte en ny server (inkluderer klienten):
+1. Logge deg inn eller registrer deg en ny gratis bruker
+- Registrer deg der: [Render register](https://dashboard.render.com/register)
+- Eller logge deg inn: [Render login](https://dashboard.render.com/login)
+
+2. Lag en ny web service
+- [Render web service](https://dashboard.render.com/web/new)
+
+3. For public repository
+- Gå til 'Public Git Repository':
+![Showing render new web service section](render_new_web_service_section.png)
+
+4. Fylle inn alt du trenger, inkludert for "Environment Variables".
