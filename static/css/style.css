@@ -41,17 +41,28 @@ header h1 {
 h2 {font-size: 32px}
 /* h3 {font-size: 24px} */
 .spaced-top-bottom {margin: 3.5rem 0}
-main span {
-    display: none
+main span {display: none}
+main p[id^="todo-description-"]
+main input[id^="task-done-"][type="checkbox"],
+main form {
+    display: flex
 }
 main form {
-    display: flex;
     flex-direction: column;
-    gap: 1rem
+    gap: 2rem
 }
-main form * {width: 50%}
+main form *:not(input[type="checkbox"]) {width: 50%}
+main form input[type="checkbox"],
+main .TODOs input[type="checkbox"] {
+    align-self: flex-start
+}
 main section:first-child {margin-top: 10rem}
 main section {margin-bottom: 10rem}
+main .TODOs {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem
+}
 @media (prefers-color-scheme: dark) {
     :root {
         /* --accent: ; */

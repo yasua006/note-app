@@ -7,17 +7,17 @@ const target_checkboxes: NodeListOf<HTMLInputElement> =
 
 target_checkboxes.forEach((target_checkbox) => {
     const description_id: string =
-        target_checkbox.parentElement.id.replaceAll(
+        target_checkbox.id.replaceAll(
             "task-done-",
             "todo-description-"
         );
 
     const target_descriptions: NodeListOf<HTMLLIElement> =
         main_elem.querySelectorAll(
-            `li[id^=${description_id}]`
+            `p[id^=${description_id}]`
         );
 
     target_descriptions.forEach((target_desc) => {
-        target_desc.style.fontWeight = "bold";
+        target_desc.style.textDecoration = "line-through";
     });
 });

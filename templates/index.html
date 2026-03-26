@@ -58,20 +58,19 @@
             <section aria-labelledby="todos-heading">
                 <h2 class="spaced-top-bottom" id="todos-heading">TODOs</h2>
 
-                <ol>
+                <div class="TODOs">
                     {%for i, todo in enumerate(todos)%}
-                    <li id="todo-title-{{ i }}"><h3>{{ todo["title"] }}</h3></li>
-                    <li id="todo-description-{{ i }}">{{ todo["description"] }}</li>
-                    <li id="task-done-{{ i }}">
-                        <input
-                        type="checkbox"
-                        value="{{ todo["task_done"] }}" />
-                    </li>
-                    <li><span id="todo-id-{{ i }}">{{ todo["id"] }}</span></li>
-                    <li><button id="edit-todo-btn-{{ i }}" type="button" title="Edits TODO">✏️</button></li>
-                    <li><button id="delete-todo-btn-{{ i }}" type="button" title="Deletes TODO">🗑️</button></li>
-                </ol>
-                {%endfor%}
+                    <h3 id="todo-title-{{ i }}">{{ todo["title"] }}</h3>
+                    <p id="todo-description-{{ i }}">{{ todo["description"] }}</p>
+                    <input
+                    id="task-done-{{ i }}"
+                    type="checkbox"
+                    value="{{ todo["task_done"] }}" />
+                    <span id="todo-id-{{ i }}">{{ todo["id"] }}</span>
+                    <button id="edit-todo-btn-{{ i }}" type="button" title="Edits TODO">✏️</button>
+                    <button id="delete-todo-btn-{{ i }}" type="button" title="Deletes TODO">🗑️</button>
+                    {%endfor%}
+                </div>
             </section>
 
             <form action="/add-todo" method="post">

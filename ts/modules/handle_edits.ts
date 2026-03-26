@@ -63,15 +63,15 @@ export const handle_todo_edits = async (
     const task_done_id = "[id^='task-done-']";
 
     const matching_todo_id: string = get_matching_id(id);
-    const matching_todo_title: string = main_elem
-        .querySelector(title_id)
-        .querySelector("h3").textContent;
+    const matching_todo_title: string =
+        main_elem.querySelector(
+            "h3" + title_id
+        ).textContent;
     const matching_todo_desc: string =
-        main_elem.querySelector(desc_id).textContent;
-    const matching_task_done: string = main_elem
-        .querySelector(task_done_id)
-        .querySelector(
-            "input[type='checkbox']"
+        main_elem.querySelector("p" + desc_id).textContent;
+    const matching_task_done: string =
+        main_elem.querySelector(
+            "input" + task_done_id + "[type='checkbox']"
         ).textContent;
 
     const edit_title_prompt: string = prompt(
