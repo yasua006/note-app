@@ -13,3 +13,5 @@ RUN pip install -r requirements.txt \
 && npm ci --no-audit --no-fund --verbose \
 
 COPY . /app/
+
+CMD ["uvicorn", "main:asgi_app --host 0.0.0.0"]
