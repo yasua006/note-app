@@ -158,8 +158,26 @@ Fjern en notat med tilhørende ID fant i databasen din (query strings).
 Fjern TODO med tilhørende ID fant i databasen din (query strings).
 
 
-## Hvordan Starte En Ny App Server
-Vi bruker Railway for å hoste vårt app server. Det er lett å bruke.
+## Railway Snarveier
+Disse snarveier er for hvis vi er på prosjektet og URL-en slutter med "/project/".
+
+- Snarvei til "Shared Variables": legg til "settings/variables" på slutten av URL-en
+- Snarvei til "Service Variables": fjern "settings" fra URL-en
+
+
+## Hvordan Starte En Ny MariaDB Server (online)
+Vi bruker Railway for å hoste MariaDB serveren. Det er lett å bruke.
+
+1. Gå til [new template seksjon](railway.com/new/template) for å kunne velge å lage en ny prosjekt som starter med template
+
+2. Skriv inn "mariadb" og velg det som står i bilden:
+![Showing template search results for "mariadb"](images/templates_search_results_mariadb.png)
+
+3. Klikk på "Deploy" etter på for å lage prosjektet
+
+
+## Hvordan Starte En Ny App Server (online)
+Vi bruker Railway igjen for å hoste vårt app server.
 
 1. For å starte en ny server (inkluderer klienten):
 - Logge deg inn eller registrer deg en ny gratis bruker
@@ -169,22 +187,27 @@ Vi bruker Railway for å hoste vårt app server. Det er lett å bruke.
 - Gå til [Railway new project](https://railway.com/new/github) og følg instruksjonene der
 
 3. Oppdater shared variables
-Python filen `config.py` leser "environment" variabler, derfor skal vi legge til shared variabler som Railway skal lese fra.
-
-### Railway Snarveier
-- Snarvei til "Shared Variables": legg til "settings/variables" på slutten av URL-en.
-- Snarvei til "Service Variables": fjern "settings" fra URL-en.
-
-![showing shared variables section result on Railway button](shared_variables_result.png)
+Python filen `config.py` leser "environment" variabler, derfor skal vi legge til "shared" variabler som Railway skal lese fra. Det er også for at MariaDB serveren kommuniserer riktig og oppdaterer dataen som den skal.
 
 Klikk på "Add All" i høyre siden og "Deploy" i venstre siden, etter på.
 
-Her skal du taste inn verdiene som du bruker for databasen (det blir variabel navn: verdi):
-- host: verdi_her
-- port: verdi_her
-- username: verdi_her (brukernavn til database brukeren du lagde i stad)
-- password: verdi_her
-- db_name: verdi_her (navnet til databasen du lagde i stad)
+![showing "Shared Variables" section result after Railway "Add" click/press](images/shared_variables_result.png)
+
+4. Skriv inn "environment" variablene i "Shared Variables"
+Bruk snarveiene for å lage "Shared Variables":
+[Railway snarveier](#railway-snarveier)
+
+Disse variabler er alltid det samme og kan derfor kopieres:
+- MARIADB_HOST: ${{RAILWAY_PRIVATE_DOMAIN}}
+- MARIADB_PORT: 3306
+- MARIADB_USER: railway
+- MARIADB_DATABASE: railway
+
+5. Kopier og lim inn MARIADB_PASSWORD verdien
+- Passorden er auto generert og derfor trenger du å kopiere det:
+![Showing hover on copy button next to MARIADB_PASSWORD in the MariaDB server project in section "Service Variables"](images/copy_generated_mariadb_password.png)
+- Lim inn verdien du kopierte som verdien for det du skal lage i "Shared Variables":
+MARIADB_PASSWORD: verdi her
 
 > [!NOTE]
 > "verdi her" er placeholder, bytt til dine env. variabel verdier

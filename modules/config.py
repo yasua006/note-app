@@ -1,27 +1,27 @@
 import sys
 from os import getenv
 
-host: str | None = getenv("host")
-port: str | None = getenv("port")
-username: str | None = getenv("username")
-password: str | None = getenv("password")
-db_name: str | None = getenv("db_name")
+MARIADB_HOST: str | None = getenv("MARIADB_HOST")
+MARIADB_PORT: str | None = getenv("MARIADB_PORT")
+MARIADB_USER: str | None = getenv("MARIADB_USER")
+MARIADB_PASSWORD: str | None = getenv("MARIADB_PASSWORD")
+MARIADB_DATABASE: str | None = getenv("MARIADB_DATABASE")
 
-if not host or not port:
+if not MARIADB_HOST or not MARIADB_PORT:
     sys.exit(1)
-if not username or not password:
+if not MARIADB_USER or not MARIADB_PASSWORD:
     sys.exit(1)
-if not db_name:
+if not MARIADB_DATABASE:
     sys.exit(1)
 
 db_config: dict[str, str | int] = {
-    "host": host,
-    "port": int(port),
-    "username": username,
-    "password": password,
-    "database": db_name,
+    "MARIADB_HOST": MARIADB_HOST,
+    "MARIADB_PORT": int(MARIADB_PORT),
+    "MARIADB_USER": MARIADB_USER,
+    "MARIADB_PASSWORD": MARIADB_PASSWORD,
+    "database": MARIADB_DATABASE,
     "autocommit": True
 }
 
 # * Connection string fungerer ikke på MacOS
-# DATABASE_URL: str = f"mariadb://{username}:{password}@{host}:{port}/{db_name}?autocommit=true"
+# DATABASE_URL: str = f"mariadb://{MARIADB_USER}:{MARIADB_PASSWORD}@{MARIADB_HOST}:{MARIADB_PORT}/{MARIADB_DATABASE}?autocommit=true"
