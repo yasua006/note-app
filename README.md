@@ -180,6 +180,7 @@ Vi bruker Railway for å hoste MariaDB serveren. Det er lett å bruke.
 Vi bruker Railway igjen for å hoste vårt app server.
 
 1. For å starte en ny server (inkluderer klienten):
+
 - Logge deg inn eller registrer deg en ny gratis bruker
 - Registrer deg der eller logge deg inn: [Railway dashboard](https://railway.com/dashboard)
 
@@ -187,6 +188,7 @@ Vi bruker Railway igjen for å hoste vårt app server.
 - Gå til [Railway new project](https://railway.com/new/github) og følg instruksjonene der
 
 3. Oppdater shared variables
+
 Python filen `config.py` leser "environment" variabler, derfor skal vi legge til "shared" variabler som Railway skal lese fra. Det er også for at MariaDB serveren kommuniserer riktig og oppdaterer dataen som den skal.
 
 Klikk på "Add All" i høyre siden og "Deploy" i venstre siden, etter på.
@@ -194,6 +196,7 @@ Klikk på "Add All" i høyre siden og "Deploy" i venstre siden, etter på.
 ![showing "Shared Variables" section result after Railway "Add" click/press](images/shared_variables_result.png)
 
 4. Skriv inn "environment" variablene i "Shared Variables"
+
 Bruk snarveiene for å lage "Shared Variables":
 [Railway snarveier](#railway-snarveier)
 
@@ -204,10 +207,14 @@ Disse variabler er alltid det samme og kan derfor kopieres:
 - MARIADB_DATABASE: railway
 
 5. Kopier og lim inn MARIADB_PASSWORD verdien
+
 - Passorden er auto generert og derfor trenger du å kopiere det:
 ![Showing hover on copy button next to MARIADB_PASSWORD in the MariaDB server project in section "Service Variables"](images/copy_generated_mariadb_password.png)
-- Lim inn verdien du kopierte som verdien for det du skal lage i "Shared Variables":
+- Lim inn verdien du kopierte som skal lages i "Shared Variables":
 MARIADB_PASSWORD: verdi her
+
+> [!IMPORTANT]
+> "Shared Variables" skal brukes og endres i notat appen, ikke mariadb serveren
 
 > [!NOTE]
 > "verdi her" er placeholder, bytt til dine env. variabel verdier
