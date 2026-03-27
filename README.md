@@ -168,14 +168,23 @@ Vi bruker Railway for å hoste vårt app server. Det er lett å bruke.
 2. Lag en ny prosjekt
 - Gå til [Railway new project](https://railway.com/new/github) og følg instruksjonene der
 
-3. Oppdater Dockerfile `ENV` verdiene. Det bruker vi for å kjøre "build" kommandoene
+3. Oppdater shared variables
+Python filen `config.py` leser "environment" variabler, derfor skal vi legge til shared variabler som Railway skal lese fra.
 
-Her skal du taste inn verdiene som du bruker for databasen:
-- host=verdi_her
-- port=verdi_her
-- username=verdi_her (brukernavn til database brukeren du lagde i stad)
-- password=verdi_her
-- db_name=verdi_her (navnet til databasen du lagde i stad)
+### Railway Snarveier
+- Snarvei til "Shared Variables": legg til "settings/variables" på slutten av URL-en.
+- Snarvei til "Service Variables": fjern "settings" fra URL-en.
+
+![showing shared variables section result on Railway button](shared_variables_result.png)
+
+Klikk på "Add All" i høyre siden og "Deploy" i venstre siden, etter på.
+
+Her skal du taste inn verdiene som du bruker for databasen (det blir variabel navn: verdi):
+- host: verdi_her
+- port: verdi_her
+- username: verdi_her (brukernavn til database brukeren du lagde i stad)
+- password: verdi_her
+- db_name: verdi_her (navnet til databasen du lagde i stad)
 
 > [!NOTE]
 > "verdi her" er placeholder, bytt til dine env. variabel verdier
