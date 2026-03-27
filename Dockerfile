@@ -1,4 +1,4 @@
-FROM python: 3.14
+FROM python:3.9-slim
 
 ENV host=0.0.0.0
 ENV port=3306
