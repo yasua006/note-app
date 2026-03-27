@@ -1,10 +1,9 @@
-FROM debian:stable-slim
+FROM python:3.11.15-trixie
 
 WORKDIR /app
 
 RUN apt update && apt upgrade \
 && apt install -y libmariadb-dev libmariadb3 \
-&& apt install -y python3-pip \
 && apt install -y nodejs npm
 
 COPY requirements.txt ./
