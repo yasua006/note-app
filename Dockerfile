@@ -1,4 +1,4 @@
-FROM python:3.9-slim
+FROM debian:latest
 
 ENV host=0.0.0.0
 ENV port=3306
@@ -6,8 +6,8 @@ ENV username=yasua006
 ENV password=Skole123
 ENV db_name=note_app_db
 
-RUN apt update \
-&& apt install -y libmariadb-dev libmariadb3 \
+RUN sudo apt-get update && sudo apt-get upgrade \
+&& sudo apt-get install -y libmariadb-dev libmariadb3 \
 && npm install && pip install -r requirements.txt
 
 WORKDIR /app
