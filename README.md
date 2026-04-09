@@ -192,7 +192,7 @@ Bruk snarveiene for å lage "Shared Variables":
 [Railway snarveier](#railway-snarveier)
 
 Disse variabler er alltid det samme og kan derfor kopieres:
-- MARIADB_HOST: ${{RAILWAY_PRIVATE_DOMAIN}}
+- MARIADB_HOST: mariadb.railway.internal
 - MARIADB_PORT: 3306
 - MARIADB_USER: railway
 - MARIADB_DATABASE: railway

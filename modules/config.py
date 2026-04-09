@@ -15,10 +15,10 @@ if not MARIADB_DATABASE:
     sys.exit(1)
 
 db_config: dict[str, str | int] = {
-    "MARIADB_HOST": MARIADB_HOST,
-    "MARIADB_PORT": int(MARIADB_PORT),
-    "MARIADB_USER": MARIADB_USER,
-    "MARIADB_PASSWORD": MARIADB_PASSWORD,
+    "host": MARIADB_HOST,
+    "port": int(MARIADB_PORT),
+    "username": MARIADB_USER,
+    "password": MARIADB_PASSWORD,
     "database": MARIADB_DATABASE,
     "autocommit": True
 }
