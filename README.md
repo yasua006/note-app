@@ -13,7 +13,7 @@
 ### Få med Python virtuell environment (`.venv`)
 Vi lager og bruker Python virtuell environment for å unngå konflikter med globale pip packages.
 
-- For MacOS
+- For Linux og MacOS
 
 For å lage en ny virtuell environment:
 ```sh
@@ -24,7 +24,7 @@ Aktiver `.venv`:
 ```sh
 source .venv/bin/activate
 ```
-Alternativt aktivasjon av `.venv`, kan vi skrive . istedenfor source, hvis Bash finnes på MacOS-en:
+Alternativt aktivasjon av `.venv`, kan vi skrive . istedenfor source, hvis Bash finnes på OS-en:
 ```sh
 . .venv/bin/activate
 ```
@@ -46,17 +46,8 @@ eller på Command Prompt:
 .venv\Scripts\activate.bat
 ```
 
-- For Linux og andre
-
-For å lage en ny virtuell environment:
-```sh
-python -m venv .venv
-```
-
-Utforsk for aktivering av Python `.venv` på Linux.
-
 ### Få med requirements
-- For MacOS
+- For Linux og MacOS
 ```sh
 pip3 install -r requirements.txt
 ```
@@ -113,7 +104,7 @@ mysql -u brukernavn -p
 
 Start den lokale serveren:
 ```sh
-uvicorn main:asgi_app
+uvicorn main:asgi_app --reload
 ```
 
 
