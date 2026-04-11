@@ -137,11 +137,11 @@ Vi bruker Railway igjen for å hoste vårt app server.
 
 1. For å starte en ny server (inkluderer klienten):
 
-- Logge deg inn eller registrer deg en ny gratis bruker
 - Registrer deg der eller logge deg inn: [Railway dashboard](https://railway.com/dashboard)
 
-2. Lag en ny prosjekt
-- Gå til [Railway new project](https://railway.com/new/github) og følg instruksjonene der
+2. Lag en ny service i det samme prosjektet
+
+- Trykk på "Add" i høyre siden av MariaDB prosjektet, "GitHub Repository", og velg notes app prosjektet
 
 3. Oppdater shared variables
 
@@ -168,9 +168,6 @@ Disse variabler er alltid det samme og kan derfor kopieres:
 ![Showing hover on copy button next to MARIADB_PASSWORD in the MariaDB server project in section "Service Variables"](images/copy_generated_mariadb_password.png)
 - Lim inn verdien du kopierte som skal lages i "Shared Variables":
 MARIADB_PASSWORD: verdi her
-
-> [!IMPORTANT]
-> "Shared Variables" skal brukes og endres i notat appen, ikke mariadb serveren
 
 > [!NOTE]
 > "verdi her" er placeholder, bytt til dine env. variabel verdier
