@@ -23,16 +23,21 @@
                 <ol>
                     {%for i, note in enumerate(notes)%}
                     <li id="note-title-{{ i }}"><h3>{{ note["title"] }}</h3></li>
-                    <li id="note-description-{{ i }}">{{ note["description"] }}</li>
-                    <li><span id="note-id-{{ i }}">{{ note["id"] }}</span></li>
-                    <li><button id="edit-note-btn-{{ i }}" type="button" title="Edits note">✏️</button></li>
-                    <li><button id="delete-note-btn-{{ i }}" type="button" title="Deletes note">🗑️</button></li>
                 </ol>
+                {%endfor%}
+                
+                <div>
+                    {%for i, note in enumerate(notes)%}
+                    <p id="note-description-{{ i }}">{{ note["description"] }}</p>
+                    <span id="note-id-{{ i }}">{{ note["id"] }}</span>
+                    <button id="edit-note-btn-{{ i }}" type="button" title="Edits note">✏️</button>
+                    <button id="delete-note-btn-{{ i }}" type="button" title="Deletes note">🗑️</button>
+                </div>
                 {%endfor%}
             </section>
 
             <form action="/add-note" method="post">
-                <p>Add numbered notes.</p>
+                <p class="spaced-bottom">Add numbered notes.</p>
 
                 <label for="title">Title:</label>
                 <input
@@ -74,7 +79,7 @@
             </section>
 
             <form action="/add-todo" method="post">
-                <p>Add TODOs.</p>
+                <p class="spaced-bottom">Add TODOs.</p>
 
                 <label for="title">Title:</label>
                 <input
