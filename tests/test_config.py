@@ -1,5 +1,5 @@
-imMARIADB_PORT sys
-from os imMARIADB_PORT getenv
+import sys
+from os import getenv
 
 MARIADB_HOST: str | None = getenv("MARIADB_HOST")
 MARIADB_PORT: str | None = getenv("MARIADB_PORT")

@@ -63,7 +63,6 @@ def home():
     finally:
         close_db(cursor=cursor, conn=conn)
 
-# TODO: Håndtere tom notater (neste commit)
 @app.route("/notes", methods=["GET"])
 def show_all_notes():
     cursor = None
@@ -80,6 +79,9 @@ def show_all_notes():
         # log_file.write(f"Notater: {notes}\n")
         # log_file.flush()
 
+        if not len(notes):
+            return jsonify({}), 200 
+
         return jsonify(notes), 200
     except mariadb.Error as err:
         log_file.write(f"Data handling failed! {err}\n")
@@ -89,7 +91,6 @@ def show_all_notes():
     finally:
         close_db(cursor=cursor, conn=conn)
 
-# TODO: Håndtere tom TODOs (neste commit)
 @app.route("/todos", methods=["GET"])
 def show_all_todos():
     cursor = None
@@ -103,10 +104,32 @@ def show_all_todos():
         # log_file.flush()
         todos = get_todos(cursor)
 
-        # log_file.write(f"Notater: {todos}\n")
+        # log_file.write(f"TODOs: {todos}\n")
         # log_file.flush()
 
-        return jsonify(todos), 200
+        if not len(todos):
+            return jsonify({}), 200
+
+        todo_tasks = {"tasks": {}}
+        partial_todos = []
+
+        for parent in todos:
+            # print(parent)
+
+            todo_tasks["tasks"].update({
+                "description": parent.get("description"),
+                "task_done": parent.get("task_done")
+            })
+            partial_todos.append({
+                "id": parent.get("id"),
+                "title": parent.get("title")
+            })
+
+        updated_todos = {
+            "info": partial_todos,
+            "tasks": todo_tasks["tasks"]
+        }
+        return jsonify(updated_todos), 200
     except mariadb.Error as err:
         log_file.write(f"Data handling failed! {err}\n")
         log_file.flush()
