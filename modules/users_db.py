@@ -6,11 +6,11 @@ def create_users(cursor) -> None:
         CREATE TABLE IF NOT EXISTS Users(
             id INT AUTO_INCREMENT PRIMARY KEY,
             email VARCHAR(255) NOT NULL UNIQUE,
-            password_hash VARCHAR(255) NOT NULL UNIQUE
+            password_hash VARCHAR(255) NOT NULL
         )
     """)
 
-def new_user(cursor, email: str, password: str):
+def new_user(cursor, email: str, password: str) -> int:
     insert_query = "INSERT INTO Users (email, password_hash) VALUES (?, ?)"
  
     encoded_password: bytes = password.encode()
@@ -18,3 +18,4 @@ def new_user(cursor, email: str, password: str):
 
     # parametized (?) - no SQL injection attack
     cursor.execute(insert_query, (email, password_hash))
+    return cursor.lastrowid

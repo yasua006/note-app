@@ -1,15 +1,19 @@
 import mariadb
+import secrets
 
 from modules.config import db_config
+
 from modules.users_db import *
+from modules.sessions_db import *
 from modules.notes_db import *
 from modules.todos_db import *
+
 from modules.patch_row import *
 from modules.delete_row import *
 from modules.close_db import *
 
 from asgiref.wsgi import WsgiToAsgi
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, abort, make_response
 
 app: Flask = Flask(__name__)
 
@@ -30,6 +34,26 @@ log_file.flush()
 # Posted by dreyescat, modified by community. See post 'Timeline' for change history
 # Retrieved 2026-03-25, License - CC BY-SA 3.0
 
+def create_necessary():
+    cursor = None
+    conn = None
+
+    try:
+        conn = mariadb.connect(**db_config)
+        cursor = conn.cursor()
+
+        create_users(cursor)
+        create_sessions(cursor)
+    except mariadb.Error as err:
+        log_file.write(f"Necessary table creation failed! {err}\n")
+        log_file.flush()
+
+        if conn:
+            conn.rollback()
+
+    finally:
+        close_db(cursor=cursor, conn=conn)
+
 @app.context_processor
 def inject_enumerate():
     return dict(enumerate=enumerate)
@@ -39,15 +63,25 @@ def home():
     cursor = None
     conn = None
 
+    session_id: str = request.cookies.get("session_id")
+
     try:
         conn = mariadb.connect(**db_config)
         cursor = conn.cursor(dictionary=True)
 
-        create_users(cursor)
+        if not session_id:
+            abort(401)
+
         create_notes(cursor)
         create_todos(cursor)
-        notes = get_notes(cursor)
-        todos = get_todos(cursor)
+
+        user_id = is_user_logged_in(cursor, session_id)
+
+        if not user_id:
+            abort(403)
+
+        notes = get_notes(cursor, user_id)
+        todos = get_todos(cursor, user_id)
 
         # for i, note in enumerate(notes):
         #     log_file.write(f"{i}")
@@ -58,9 +92,12 @@ def home():
 
         return render_template("index.html", notes=notes, todos=todos)
     except mariadb.Error as err:
-        log_file.write(f"Data handling failed! {err}\n")
+        log_file.write(f"Notes & TODOs table creation failed! {err}\n")
         log_file.flush()
-        conn.rollback()
+
+        if conn:
+            conn.rollback()
+
         return jsonify("Data handling failed!"), 500
     finally:
         close_db(cursor=cursor, conn=conn)
@@ -74,13 +111,23 @@ def show_all_notes():
     cursor = None
     conn = None
 
+    session_id: str = request.cookies.get("session_id")
+
+    if not session_id:
+        abort(401)
+
     try:
         conn = mariadb.connect(**db_config)
         cursor = conn.cursor(dictionary=True)
+ 
+        user_id = is_user_logged_in(cursor, session_id)
+
+        if not user_id:
+            abort(403)
 
         # log_file.write("Før select query - alle notes\n")
         # log_file.flush()
-        notes = get_notes(cursor)
+        notes = get_notes(cursor, user_id)
 
         # log_file.write(f"Notater: {notes}\n")
         # log_file.flush()
@@ -101,7 +148,10 @@ def show_all_notes():
     except mariadb.Error as err:
         log_file.write(f"Data handling failed! {err}\n")
         log_file.flush()
-        conn.rollback()
+
+        if conn:
+            conn.rollback()
+
         return jsonify("Data handling failed!"), 500
     finally:
         close_db(cursor=cursor, conn=conn)
@@ -111,13 +161,23 @@ def show_all_todos():
     cursor = None
     conn = None
 
+    session_id: str = request.cookies.get("session_id")
+
+    if not session_id:
+        abort(401)
+
     try:
         conn = mariadb.connect(**db_config)
         cursor = conn.cursor(dictionary=True)
 
+        user_id = is_user_logged_in(cursor, session_id)
+
+        if not user_id:
+            abort(403)
+
         # log_file.write("Før select query - alle todos\n")
         # log_file.flush()
-        todos = get_todos(cursor)
+        todos = get_todos(cursor, user_id)
 
         # log_file.write(f"TODOs: {todos}\n")
         # log_file.flush()
@@ -143,7 +203,10 @@ def show_all_todos():
     except mariadb.Error as err:
         log_file.write(f"Data handling failed! {err}\n")
         log_file.flush()
-        conn.rollback()
+
+        if conn:
+            conn.rollback()
+
         return jsonify("Data handling failed!"), 500
     finally:
         close_db(cursor=cursor, conn=conn)
@@ -178,13 +241,28 @@ def signup():
         conn = mariadb.connect(**db_config)
         cursor = conn.cursor()
 
-        new_user(cursor=cursor, email=email, password=password)
-        return render_template("index.html", email=email)
+        user_id: int = new_user(cursor=cursor, email=email, password=password)
+        session_id: str = secrets.token_hex(32)
+        insert_session(cursor=cursor, session_id=session_id, user_id=user_id)
+
+        m_response = make_response(render_template("index.html", email=email))
+        m_response.set_cookie(
+            "session_id",
+            session_id,
+            httponly=True,
+            secure=True,
+            samesite="Lax" # top-level GET only
+        )
+
+        return m_response
     except mariadb.Error as err:
         log_file.write(f"Data handling failed (user signup)! {err}\n")
         log_file.flush()
-        conn.rollback()
-        return 500
+
+        if conn:
+            conn.rollback()
+
+        abort(500)
     finally:
         close_db(cursor=cursor, conn=conn)
 
@@ -192,6 +270,11 @@ def signup():
 def add_note():
     cursor = None
     conn = None
+
+    session_id: str = request.cookies.get("session_id")
+
+    if not session_id:
+        abort(401)
 
     title: str | None = request.form.get("title")
     description: str | None = request.form.get("description")
@@ -206,18 +289,30 @@ def add_note():
         conn = mariadb.connect(**db_config)
         cursor = conn.cursor(dictionary=True)
 
-        note_id = insert_note(cursor=cursor, title=title, description=description)
+        user_id = is_user_logged_in(cursor, session_id)
+
+        if not user_id:
+            abort(403)
+
+        note_id = insert_note(cursor=cursor, user_id=user_id,
+            title=title, description=description)
 
         return jsonify(f"Note with id {note_id} successfully created"), 201
     except mariadb.IntegrityError as ierr:
         log_file.write(f"NULL value detected while inserting? {ierr}")
         log_file.flush()
-        conn.rollback()
+
+        if conn:
+            conn.rollback()
+
         return jsonify("NULL value detected while inserting?"), 500
     except mariadb.Error as err:
         log_file.write(f"Data insertion failed! {err}")
         log_file.flush()
-        conn.rollback()
+
+        if conn:
+            conn.rollback()
+
         return jsonify("Data insertion failed!"), 500
     except Exception as ex:
         log_file.write(f"Cannot add note! {ex}")
@@ -230,6 +325,11 @@ def add_note():
 def add_todo():
     cursor = None
     conn = None
+
+    session_id: str = request.cookies.get("session_id")
+
+    if not session_id:
+        abort(401)
 
     title: str | None = request.form.get("title")
     description: str | None = request.form.get("description")
@@ -259,18 +359,30 @@ def add_todo():
         conn = mariadb.connect(**db_config)
         cursor = conn.cursor(dictionary=True)
 
-        todo_id = insert_todo(cursor=cursor, title=title, description=description, task_done=task_done)
+        user_id = is_user_logged_in(cursor, session_id)
+
+        if not user_id:
+            abort(403)
+
+        todo_id = insert_todo(cursor=cursor, user_id=user_id,
+            title=title, description=description, task_done=task_done)
 
         return jsonify(f"TODO with id {todo_id} successfully created"), 201
     except mariadb.IntegrityError as ierr:
         log_file.write(f"NULL value detected while inserting? {ierr}")
         log_file.flush()
-        conn.rollback()
+
+        if conn:
+            conn.rollback()
+
         return jsonify("NULL value detected while inserting?"), 500
     except mariadb.Error as err:
         log_file.write(f"Data insertion failed! {err}")
         log_file.flush()
-        conn.rollback()
+
+        if conn:
+            conn.rollback()
+
         return jsonify("Data insertion failed!"), 500
     except Exception as ex:
         log_file.write(f"Cannot add TODO! {ex}")
@@ -284,6 +396,11 @@ def patch_note():
     cursor = None
     conn = None
 
+    session_id: str = request.cookies.get("session_id")
+
+    if not session_id:
+        abort(401)
+        
     note_title: str | None = request.args.get("title")
     note_description: str | None = request.args.get("description")
     note_id: str | None = request.args.get("id")
@@ -292,14 +409,23 @@ def patch_note():
         conn = mariadb.connect(**db_config)
         cursor = conn.cursor()
 
+        user_id = is_user_logged_in(cursor, session_id)
+
+        if not user_id:
+            abort(403)
+
         patch_row(cursor=cursor, t_to_patch="Notes",
-            title=note_title, description=note_description, row_id=note_id)
+            title=note_title, description=note_description,
+            row_id=int(note_id), user_id=user_id)
 
         return jsonify(f"Note with id {note_id} successfully edited"), 200
     except mariadb.Error as err:
         log_file.write(f"Data editing failed! {err}")
         log_file.flush()
-        conn.rollback()
+
+        if conn:
+            conn.rollback()
+
         return jsonify("Data editing failed!"), 500
     except Exception as ex:
         log_file.write(f"Cannot edit note! {ex}")
@@ -313,6 +439,11 @@ def patch_todo():
     cursor = None
     conn = None
 
+    session_id: str = request.cookies.get("session_id")
+
+    if not session_id:
+        abort(401)
+
     todo_title: str | None = request.args.get("title")
     todo_description: str | None = request.args.get("description")
     task_done: str | None = request.args.get("task-done")
@@ -322,14 +453,24 @@ def patch_todo():
         conn = mariadb.connect(**db_config)
         cursor = conn.cursor()
 
-        patch_row(cursor=cursor, t_to_patch="Notes",
-            title=todo_title, description=todo_description, row_id=todo_id, task_done=task_done)
+        user_id = is_user_logged_in(cursor, session_id)
+
+        if not user_id:
+            abort(403)
+
+        patch_row(cursor=cursor, t_to_patch="TODOs",
+            title=todo_title, description=todo_description,
+            row_id=int(todo_id), user_id=user_id,
+            task_done=task_done)
 
         return jsonify(f"TODO with id {todo_id} successfully edited"), 200
     except mariadb.Error as err:
         log_file.write(f"Data editing failed! {err}")
         log_file.flush()
-        conn.rollback()
+
+        if conn:
+            conn.rollback()
+
         return jsonify("Data editing failed!"), 500
     except Exception as ex:
         log_file.write(f"Cannot edit TODO! {ex}")
@@ -343,19 +484,33 @@ def delete_note():
     cursor = None
     conn = None
 
+    session_id: str = request.cookies.get("session_id")
+
+    if not session_id:
+        abort(401)
+
     note_id: str | None = request.args.get("id")
 
     try:
         conn = mariadb.connect(**db_config)
         cursor = conn.cursor()
 
-        delete_row(cursor=cursor, t_to_delete="Notes", row_id=int(note_id))
+        user_id = is_user_logged_in(cursor, session_id)
+
+        if not user_id:
+            abort(403)
+
+        delete_row(cursor=cursor, t_to_delete="Notes",
+        row_id=int(note_id), user_id=user_id)
 
         return jsonify(f"Note with id {note_id} successfully deleted"), 200
     except mariadb.Error as err:
         log_file.write(f"Data deletion failed! {err}")
         log_file.flush()
-        conn.rollback()
+
+        if conn:
+            conn.rollback()
+
         return jsonify("Data deletion failed!"), 500
     except Exception as ex:
         log_file.write(f"Cannot delete note! {ex}")
@@ -369,19 +524,33 @@ def delete_todo():
     cursor = None
     conn = None
 
+    session_id: str = request.cookies.get("session_id")
+
+    if not session_id:
+        abort(401)
+
     todo_id: str | None = request.args.get("id")
 
     try:
         conn = mariadb.connect(**db_config)
         cursor = conn.cursor()
 
-        delete_row(cursor=cursor, t_to_delete="TODOs", row_id=int(todo_id))
+        user_id = is_user_logged_in(cursor, session_id)
+
+        if not user_id:
+            abort(403)
+
+        delete_row(cursor=cursor, t_to_delete="TODOs",
+        row_id=int(todo_id), user_id=user_id)
 
         return jsonify(f"TODO with id {todo_id} successfully deleted"), 200
     except mariadb.Error as err:
         log_file.write(f"Data deletion failed! {err}")
         log_file.flush()
-        conn.rollback()
+
+        if conn:
+            conn.rollback()
+
         return jsonify("Data deletion failed!"), 500
     except Exception as ex:
         log_file.write(f"Cannot delete TODO! {ex}")
@@ -393,4 +562,5 @@ def delete_todo():
 asgi_app: WsgiToAsgi = WsgiToAsgi(app)
 
 if __name__ == "__main__":
+    create_necessary()
     app.run()
